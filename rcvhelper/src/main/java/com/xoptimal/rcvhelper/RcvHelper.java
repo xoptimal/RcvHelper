@@ -1,4 +1,4 @@
-package com.xoptimal.revhelper;
+package com.xoptimal.rcvhelper;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;

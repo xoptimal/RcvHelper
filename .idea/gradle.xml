@@ -9,7 +9,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/revhelper" />
+            <option value="$PROJECT_DIR$/rcvhelper" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -1,4 +1,4 @@
-package com.xoptimal.revhelper.listener;
+package com.xoptimal.rcvhelper.listener;
 
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;

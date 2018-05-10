@@ -1,4 +1,4 @@
-package com.xoptimal.revhelper.view;
+package com.xoptimal.rcvhelper.view;
 
 import android.content.Context;
 import android.view.View;

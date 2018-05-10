@@ -1,4 +1,4 @@
-package com.xoptimal.revhelper.provider;
+package com.xoptimal.rcvhelper.provider;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

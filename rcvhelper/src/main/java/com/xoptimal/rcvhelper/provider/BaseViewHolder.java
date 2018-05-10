@@ -1,4 +1,4 @@
-package com.xoptimal.revhelper.provider;
+package com.xoptimal.rcvhelper.provider;
 
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
