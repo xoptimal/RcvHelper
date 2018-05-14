@@ -1,4 +1,4 @@
-package com.xoptimal.rcvhelper.provider;
+package com.xoptimal.rcvhelper.viewholder;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.xoptimal.rcvhelper.entity.FDLoadMore;
+import com.xoptimal.rcvhelper.entity.NetStatus;
 import com.xoptimal.rcvhelper.view.INetViewGroup;
 
 import me.drakeet.multitype.ItemViewBinder;
@@ -17,7 +17,7 @@ import me.drakeet.multitype.ItemViewBinder;
  * Created by Freddie on 2018/2/25 0025 .
  * Description:
  */
-public class NetViewHolder extends ItemViewBinder<FDLoadMore, RecyclerView.ViewHolder> {
+public class NetViewHolder extends ItemViewBinder<NetStatus, RecyclerView.ViewHolder> {
 
     private INetViewGroup mViewGroup;
 
@@ -33,8 +33,8 @@ public class NetViewHolder extends ItemViewBinder<FDLoadMore, RecyclerView.ViewH
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @NonNull FDLoadMore item) {
-        View    view    = null;
+    protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @NonNull NetStatus item) {
+        View view = null;
         switch (item.getStatus()) {
             case NORMAL:
                 view = mViewGroup.initNormal();
@@ -54,7 +54,7 @@ public class NetViewHolder extends ItemViewBinder<FDLoadMore, RecyclerView.ViewH
         }
         FrameLayout parent = ((FrameLayout) holder.itemView);
         parent.removeAllViews();
-        parent.addView(view);
+        parent.addView(view, new FrameLayout.LayoutParams(-1, -1));
     }
 
 

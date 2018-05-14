@@ -4,11 +4,11 @@ package com.xoptimal.rcvhelper.entity;
  * Created by Freddie on 2016/11/14 0014 .
  * Description:
  */
-public class FDLoadMore {
+public class NetStatus {
 
     private Status status;
 
-    public FDLoadMore(Status status) {
+    public NetStatus(Status status) {
         this.status = status;
     }
 

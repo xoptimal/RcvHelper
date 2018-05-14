@@ -1,4 +1,4 @@
-package com.xoptimal.rcvhelper.provider;
+package com.xoptimal.rcvhelper.viewholder;
 
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
@@ -12,7 +12,7 @@ import me.drakeet.multitype.ItemViewBinder;
  * Created by Freddie on 2016/11/14 0014 .
  * Description:
  */
-public abstract class ExItemViewBinder<T> extends ItemViewBinder<T, BaseViewHolder> {
+public abstract class ExViewBinder<T> extends ItemViewBinder<T, BaseViewHolder> {
 
     public abstract int getLayoutId();
 
@@ -25,7 +25,7 @@ public abstract class ExItemViewBinder<T> extends ItemViewBinder<T, BaseViewHold
 
     protected OnClickHandle onClickHandle;
 
-    public ExItemViewBinder setOnClickHandle(OnClickHandle onClickHandle) {
+    public ExViewBinder setOnClickHandle(OnClickHandle onClickHandle) {
         this.onClickHandle = onClickHandle;
         return this;
     }

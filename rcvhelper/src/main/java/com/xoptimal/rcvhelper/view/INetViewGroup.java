@@ -2,6 +2,7 @@ package com.xoptimal.rcvhelper.view;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by Freddie on 2017/9/6 0006 .
@@ -11,9 +12,11 @@ public abstract class INetViewGroup {
 
     protected Context       mContext;
     protected OnNetListener mNetListener;
+    protected ViewGroup     mRootView;
 
-    INetViewGroup(Context context) {
+    INetViewGroup(Context context, ViewGroup root) {
         mContext = context;
+        mRootView = root;
     }
 
     public void setNetListener(OnNetListener netListener) {

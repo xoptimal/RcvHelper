@@ -4,11 +4,11 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-import com.xoptimal.rcvhelper.entity.FDLoadMore;
+import com.xoptimal.rcvhelper.entity.NetStatus;
 import com.xoptimal.rcvhelper.listener.OnRcvScrollListener;
-import com.xoptimal.rcvhelper.provider.NetViewHolder;
 import com.xoptimal.rcvhelper.view.INetViewGroup;
 import com.xoptimal.rcvhelper.view.ImplNetViewGroup;
+import com.xoptimal.rcvhelper.viewholder.NetViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +23,14 @@ import me.drakeet.multitype.MultiTypeAdapter;
  */
 public class RcvHelper {
 
-    private RecyclerView mRecyclerView;
+    private RecyclerView     mRecyclerView;
     private MultiTypeAdapter mAdapter;
-    private boolean mLoadMore;
-    private boolean hasLoadMore;
-    private boolean mSmartLoadMoreView;
-    private boolean mAutoLoadMore;
-    private Items mItems;
-    private INetViewGroup mNetViewGroup;
+    private boolean          mLoadMore;
+    private boolean          hasLoadMore;
+    private boolean          mSmartLoadMoreView;
+    private boolean          mAutoLoadMore;
+    private Items            mItems;
+    private INetViewGroup    mNetViewGroup;
 
     protected RcvHelper(RecyclerView recyclerView, INetViewGroup viewGroup, boolean loadMore, boolean autoLoadMore, boolean smartLoadMoreView) {
         mLoadMore = loadMore;
@@ -39,7 +39,7 @@ public class RcvHelper {
         mRecyclerView = recyclerView;
         mAdapter = new MultiTypeAdapter();
         mAdapter.setItems(mItems = new Items());
-        mAdapter.register(FDLoadMore.class, new NetViewHolder(mNetViewGroup = viewGroup));
+        mAdapter.register(NetStatus.class, new NetViewHolder(mNetViewGroup = viewGroup));
         if (mRecyclerView.getLayoutManager() == null) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
         }
@@ -50,12 +50,12 @@ public class RcvHelper {
 
     public static class Builder {
 
-        private RecyclerView mRecyclerView;
+        private RecyclerView  mRecyclerView;
         private INetViewGroup mViewGroup;
 
-        private boolean mLoadMore = true;
+        private boolean mLoadMore          = true;
         private boolean mSmartLoadMoreView = true;
-        private boolean mAutoLoadMore = true;
+        private boolean mAutoLoadMore      = true;
 
         private INetViewGroup.OnNetListener mNetListener;
 
@@ -85,7 +85,7 @@ public class RcvHelper {
 
         public RcvHelper create() {
             if (mViewGroup == null) {
-                mViewGroup = new ImplNetViewGroup(mRecyclerView.getContext());
+                mViewGroup = new ImplNetViewGroup(mRecyclerView.getContext(), mRecyclerView);
             }
             return new RcvHelper(mRecyclerView, mViewGroup, mLoadMore, mAutoLoadMore, mSmartLoadMoreView);
         }
@@ -103,35 +103,35 @@ public class RcvHelper {
 
     private void resetItemView() {
         if (mItems.size() == 0) {
-            mItems.add(new FDLoadMore(FDLoadMore.Status.EMPTY));
+            mItems.add(new NetStatus(NetStatus.Status.EMPTY));
             mAdapter.notifyItemInserted(0);
 
-        } else if (mItems.size() == 1 && mItems.get(0) instanceof FDLoadMore) {
-            ((FDLoadMore) mItems.get(0)).setStatus(FDLoadMore.Status.EMPTY);
+        } else if (mItems.size() == 1 && mItems.get(0) instanceof NetStatus) {
+            ((NetStatus) mItems.get(0)).setStatus(NetStatus.Status.EMPTY);
             mAdapter.notifyDataSetChanged();
 
         } else {
-            initLoadMoreView(hasLoadMore ? FDLoadMore.Status.NORMAL : FDLoadMore.Status.MOREOVER);
+            initLoadMoreView(hasLoadMore ? NetStatus.Status.NORMAL : NetStatus.Status.MOREOVER);
         }
     }
 
-    private void showLayout(FDLoadMore.Status status) {
+    private void showLayout(NetStatus.Status status) {
         Object item = mItems.get(mItems.size() - 1);
-        if (item instanceof FDLoadMore) {
-            ((FDLoadMore) item).setStatus(status);
+        if (item instanceof NetStatus) {
+            ((NetStatus) item).setStatus(status);
             set(mItems.size() - 1, item);
         } else {
-            add(new FDLoadMore(status));
+            add(new NetStatus(status));
         }
     }
 
-    public void initLoadMoreView(final FDLoadMore.Status status) {
+    public void initLoadMoreView(final NetStatus.Status status) {
         if (!mLoadMore) return;
         if (mSmartLoadMoreView) {
             mRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    int position;
+                    int                        position;
                     RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
                     if (layoutManager instanceof StaggeredGridLayoutManager) {
                         position = ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(null)[0];
@@ -141,7 +141,7 @@ public class RcvHelper {
                     if (!(position >= mItems.size() - 1)) {
                         showLayout(status);
 
-                    } else if (mItems.get(mItems.size() - 1) instanceof FDLoadMore) {
+                    } else if (mItems.get(mItems.size() - 1) instanceof NetStatus) {
                         remove(mItems.size() - 1);
                     }
                 }
@@ -153,7 +153,7 @@ public class RcvHelper {
 
     private void checkLoadView() {
         int index = mItems.size() - 1;
-        if (index >= 0 && mItems.get(index) instanceof FDLoadMore) {
+        if (index >= 0 && mItems.get(index) instanceof NetStatus) {
             mItems.remove(index);
             mAdapter.notifyItemRemoved(index);
         }
@@ -170,7 +170,7 @@ public class RcvHelper {
         checkLoadView();
         if (items != null && items.size() > 0) {
             int index = mItems.size() - 1;
-            if (index > 0 && mItems.get(index) instanceof FDLoadMore) {
+            if (index > 0 && mItems.get(index) instanceof NetStatus) {
                 mItems.remove(index);
             }
             mItems.addAll(items);
@@ -185,7 +185,7 @@ public class RcvHelper {
     }
 
     public void remove(int index) {
-        if (mItems.get(index) instanceof FDLoadMore && mItems.size() == 1) {
+        if (mItems.get(index) instanceof NetStatus && mItems.size() == 1) {
             mItems.remove(0);
         } else {
             mItems.remove(index);
@@ -210,7 +210,7 @@ public class RcvHelper {
     }
 
     public final int getSize() {
-        if (mItems.get(mItems.size() - 1) instanceof FDLoadMore) {
+        if (mItems.get(mItems.size() - 1) instanceof NetStatus) {
             return mItems.size() - 1;
         }
         return mItems.size();
