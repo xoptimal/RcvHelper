@@ -3,12 +3,9 @@ package com.xoptimal.rcvhelper.viewholder;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.xoptimal.rcvhelper.entity.NetStatus;
-import com.xoptimal.rcvhelper.view.INetViewGroup;
 
 import me.drakeet.multitype.ItemViewBinder;
 
@@ -19,42 +16,22 @@ import me.drakeet.multitype.ItemViewBinder;
  */
 public class NetViewHolder extends ItemViewBinder<NetStatus, RecyclerView.ViewHolder> {
 
-    private INetViewGroup mViewGroup;
+    private int layoutId;
 
-    public NetViewHolder(INetViewGroup viewGroup) {
-        mViewGroup = viewGroup;
+    public NetViewHolder(int layoutId) {
+        this.layoutId = layoutId;
     }
 
     @NonNull
     @Override
     protected RecyclerView.ViewHolder onCreateViewHolder(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-        return new RecyclerView.ViewHolder(new FrameLayout(inflater.getContext())) {
+        return new RecyclerView.ViewHolder(inflater.inflate(layoutId, parent, false)) {
         };
     }
 
     @Override
     protected void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, @NonNull NetStatus item) {
-        View view = null;
-        switch (item.getStatus()) {
-            case NORMAL:
-                view = mViewGroup.initNormal();
-                break;
-            case LOADING:
-                view = mViewGroup.initLoadingView();
-                break;
-            case ERROR:
-                view = mViewGroup.initErrorView(new Throwable(item.getMessage()));
-                break;
-            case MOREOVER:
-                view = mViewGroup.initMoreover();
-                break;
-            case EMPTY:
-                view = mViewGroup.initEmptyView();
-                break;
-        }
-        FrameLayout parent = ((FrameLayout) holder.itemView);
-        parent.removeAllViews();
-        parent.addView(view, new FrameLayout.LayoutParams(-1, -1));
+
     }
 
 

@@ -5,9 +5,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.xoptimal.rcvhelper.R;
 
@@ -17,24 +14,13 @@ import com.xoptimal.rcvhelper.R;
  */
 public class ImplNetViewGroup extends INetViewGroup {
 
-
     public ImplNetViewGroup(Context context, ViewGroup root) {
         super(context, root);
     }
 
     @Override
     public View initNormal() {
-        LinearLayout layout = new LinearLayout(mContext);
-        Button       button = new Button(mContext);
-        button.setText("加载更多");
-        layout.addView(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mNetListener.onLoadMore();
-            }
-        });
-        return layout;
+        return LayoutInflater.from(mContext).inflate(R.layout.fd_view_normal, mRootView, false);
     }
 
     @Override
@@ -44,40 +30,16 @@ public class ImplNetViewGroup extends INetViewGroup {
 
     @Override
     public View initErrorView(Throwable e) {
-        LinearLayout layout = new LinearLayout(mContext);
-        Button       button = new Button(mContext);
-        button.setText("加载更多失败,点击重试");
-        layout.addView(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mNetListener.onLoadMore();
-            }
-        });
-        return layout;
+        return LayoutInflater.from(mContext).inflate(R.layout.fd_view_error, mRootView, false);
     }
 
     @Override
     public View initLoadingView() {
-        LinearLayout layout = new LinearLayout(mContext);
-        Button       button = new Button(mContext);
-        button.setText("加载更多失败,点击重试");
-        layout.addView(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mNetListener.onLoadMore();
-            }
-        });
-        return layout;
+        return LayoutInflater.from(mContext).inflate(R.layout.fd_view_loading, mRootView, false);
     }
 
     @Override
     public View initMoreover() {
-        LinearLayout layout   = new LinearLayout(mContext);
-        TextView     textView = new TextView(mContext);
-        textView.setText("没有更多数据啦~");
-        layout.addView(textView);
-        return layout;
+        return LayoutInflater.from(mContext).inflate(R.layout.fd_view_moreover, mRootView, false);
     }
 }

@@ -1,5 +1,6 @@
 package com.xoptimal.rcvhelper;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -15,7 +16,10 @@ import java.util.List;
 
 import me.drakeet.multitype.ItemViewBinder;
 import me.drakeet.multitype.Items;
+import me.drakeet.multitype.Linker;
 import me.drakeet.multitype.MultiTypeAdapter;
+
+import static com.xoptimal.rcvhelper.entity.NetStatus.Status;
 
 /**
  * Created by Freddie on 2016/03/12 .
@@ -30,16 +34,39 @@ public class RcvHelper {
     private boolean          mSmartLoadMoreView;
     private boolean          mAutoLoadMore;
     private Items            mItems;
-    private INetViewGroup    mNetViewGroup;
 
-    protected RcvHelper(RecyclerView recyclerView, INetViewGroup viewGroup, boolean loadMore, boolean autoLoadMore, boolean smartLoadMoreView) {
+
+
+    protected RcvHelper(RecyclerView recyclerView, boolean loadMore, boolean autoLoadMore, boolean smartLoadMoreView) {
         mLoadMore = loadMore;
         mAutoLoadMore = autoLoadMore;
         mSmartLoadMoreView = smartLoadMoreView;
         mRecyclerView = recyclerView;
         mAdapter = new MultiTypeAdapter();
         mAdapter.setItems(mItems = new Items());
-        mAdapter.register(NetStatus.class, new NetViewHolder(mNetViewGroup = viewGroup));
+        mAdapter.register(NetStatus.class).to(
+                new NetViewHolder(R.layout.fd_view_normal),
+                new NetViewHolder(R.layout.fd_view_loading),
+                new NetViewHolder(R.layout.fd_view_error),
+                new NetViewHolder(R.layout.fd_view_moreover),
+                new NetViewHolder(R.layout.fd_view_empty)
+        ).withLinker(new Linker<NetStatus>() {
+            @Override
+            public int index(int position, @NonNull NetStatus netStatus) {
+                switch (netStatus.getStatus()) {
+                    case LOADING:
+                        return 1;
+                    case ERROR:
+                        return 2;
+                    case MOREOVER:
+                        return 3;
+                    case EMPTY:
+                        return 4;
+                    default:
+                        return 0;
+                }
+            }
+        });
         if (mRecyclerView.getLayoutManager() == null) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
         }
@@ -51,21 +78,13 @@ public class RcvHelper {
     public static class Builder {
 
         private RecyclerView  mRecyclerView;
-        private INetViewGroup mViewGroup;
 
         private boolean mLoadMore          = true;
         private boolean mSmartLoadMoreView = true;
         private boolean mAutoLoadMore      = true;
 
-        private INetViewGroup.OnNetListener mNetListener;
-
         public Builder(RecyclerView recyclerView) {
             mRecyclerView = recyclerView;
-        }
-
-        public Builder setViewGroup(INetViewGroup viewGroup) {
-            mViewGroup = viewGroup;
-            return this;
         }
 
         public Builder setmLoadMore(boolean mLoadMore) {
@@ -84,10 +103,7 @@ public class RcvHelper {
         }
 
         public RcvHelper create() {
-            if (mViewGroup == null) {
-                mViewGroup = new ImplNetViewGroup(mRecyclerView.getContext(), mRecyclerView);
-            }
-            return new RcvHelper(mRecyclerView, mViewGroup, mLoadMore, mAutoLoadMore, mSmartLoadMoreView);
+            return new RcvHelper(mRecyclerView, mLoadMore, mAutoLoadMore, mSmartLoadMoreView);
         }
     }
 
@@ -103,19 +119,19 @@ public class RcvHelper {
 
     private void resetItemView() {
         if (mItems.size() == 0) {
-            mItems.add(new NetStatus(NetStatus.Status.EMPTY));
+            mItems.add(new NetStatus(Status.EMPTY));
             mAdapter.notifyItemInserted(0);
 
-        } else if (mItems.size() == 1 && mItems.get(0) instanceof NetStatus) {
-            ((NetStatus) mItems.get(0)).setStatus(NetStatus.Status.EMPTY);
+        } else if (mItems.size() == 1 && mItems.get(0) instanceof NetStatus && ((NetStatus) mItems.get(0)).getStatus() != Status.EMPTY) {
+            ((NetStatus) mItems.get(0)).setStatus(Status.EMPTY);
             mAdapter.notifyDataSetChanged();
 
-        } else {
-            initLoadMoreView(hasLoadMore ? NetStatus.Status.NORMAL : NetStatus.Status.MOREOVER);
+        } else if (mItems.size() > 1) {
+            initLoadMoreView(hasLoadMore ? Status.NORMAL : Status.MOREOVER);
         }
     }
 
-    private void showLayout(NetStatus.Status status) {
+    private void showLayout(Status status) {
         Object item = mItems.get(mItems.size() - 1);
         if (item instanceof NetStatus) {
             ((NetStatus) item).setStatus(status);
@@ -125,26 +141,33 @@ public class RcvHelper {
         }
     }
 
-    public void initLoadMoreView(final NetStatus.Status status) {
+    public void initLoadMoreView(final Status status) {
         if (!mLoadMore) return;
         if (mSmartLoadMoreView) {
             mRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    int                        position;
+                    int                        lastPosition, firstPosition;
                     RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();
                     if (layoutManager instanceof StaggeredGridLayoutManager) {
-                        position = ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(null)[0];
+                        lastPosition = ((StaggeredGridLayoutManager) layoutManager).findLastVisibleItemPositions(null)[0];
+                        firstPosition = ((StaggeredGridLayoutManager) layoutManager).findFirstVisibleItemPositions(null)[0];
                     } else {
-                        position = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                        lastPosition = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+                        firstPosition = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
                     }
-                    if (!(position >= mItems.size() - 1)) {
+
+                    int count = mItems.size() - 1;
+
+                    if (!(lastPosition >= count && firstPosition == 0)) {
                         showLayout(status);
 
-                    } else if (mItems.get(mItems.size() - 1) instanceof NetStatus) {
-                        remove(mItems.size() - 1);
+                    } else if (firstPosition == 0 && mItems.get(count) instanceof NetStatus) {
+                        mItems.remove(count);
+                        mAdapter.notifyItemRemoved(count);
                     }
                 }
+
             });
         } else {
             showLayout(status);
@@ -185,12 +208,10 @@ public class RcvHelper {
     }
 
     public void remove(int index) {
-        if (mItems.get(index) instanceof NetStatus && mItems.size() == 1) {
-            mItems.remove(0);
-        } else {
+        if (index >= 0) {
             mItems.remove(index);
+            mAdapter.notifyItemRemoved(index);
         }
-        mAdapter.notifyItemRemoved(index);
         resetItemView();
     }
 
@@ -235,7 +256,6 @@ public class RcvHelper {
 
     public void setOnNetListener(INetViewGroup.OnNetListener listener) {
         netListener = listener;
-        mNetViewGroup.setNetListener(listener);
     }
 
     private OnScrollListener mScrollListener;
