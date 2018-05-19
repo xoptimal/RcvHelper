@@ -1,6 +1,5 @@
 ## RcvHelper
-
-[![License](https://jitpack.io/v/jitpack/maven-simple.svg)](https://jitpack.io/#xoptimal/RcvHelper/1.1.0)
+[![](https://jitpack.io/v/xoptimal/RcvHelper.svg)](https://jitpack.io/#xoptimal/RcvHelper)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/xoptimal/RcvHelper/blob/master/LICENSE)
 
 
