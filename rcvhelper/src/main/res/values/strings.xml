@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">RcvHelper</string>
-    <string name="text_empty">No Data</string>
+    <string name="text_empty">There is no data</string>
     <string name="text_error">Load Failed, Retry</string>
     <string name="text_loading">loading...</string>
     <string name="text_normal">OnClick Load More</string>
-
-
 </resources>

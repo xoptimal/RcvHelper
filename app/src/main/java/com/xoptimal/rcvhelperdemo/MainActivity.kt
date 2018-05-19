@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        mRcvHelper = RcvHelper.Builder(rcv).create()
+        mRcvHelper = RcvHelper.Builder(rcv).setSmartLoadMore(true).create()
         mRcvHelper.register(String::class.java, object : ExViewBinder<String>() {
             override fun getLayoutId(): Int {
                 return R.layout.item_view

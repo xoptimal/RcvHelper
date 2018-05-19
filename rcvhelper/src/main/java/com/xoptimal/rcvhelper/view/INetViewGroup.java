@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.xoptimal.rcvhelper.listener.OnNetListener;
+
 /**
  * Created by Freddie on 2017/9/6 0006 .
  * Description:
@@ -33,10 +35,6 @@ public abstract class INetViewGroup {
 
     public abstract View initMoreover();
 
-    public interface OnNetListener {
-        void onRefresh();
 
-        void onLoadMore();
-    }
 }
 

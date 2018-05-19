@@ -1,14 +1,12 @@
 package com.xoptimal.rcvhelper;
 
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
 import com.xoptimal.rcvhelper.entity.NetStatus;
+import com.xoptimal.rcvhelper.listener.OnNetListener;
 import com.xoptimal.rcvhelper.listener.OnRcvScrollListener;
-import com.xoptimal.rcvhelper.view.INetViewGroup;
-import com.xoptimal.rcvhelper.view.ImplNetViewGroup;
 import com.xoptimal.rcvhelper.viewholder.NetViewHolder;
 
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ import java.util.List;
 
 import me.drakeet.multitype.ItemViewBinder;
 import me.drakeet.multitype.Items;
-import me.drakeet.multitype.Linker;
 import me.drakeet.multitype.MultiTypeAdapter;
 
 import static com.xoptimal.rcvhelper.entity.NetStatus.Status;
@@ -31,57 +28,44 @@ public class RcvHelper {
     private MultiTypeAdapter mAdapter;
     private boolean          mLoadMore;
     private boolean          hasLoadMore;
-    private boolean          mSmartLoadMoreView;
+    private boolean          mSmartLoadMore;
     private boolean          mAutoLoadMore;
     private Items            mItems;
 
+    private NetViewHolder mNetViewHolder = new NetViewHolder();
 
-
-    protected RcvHelper(RecyclerView recyclerView, boolean loadMore, boolean autoLoadMore, boolean smartLoadMoreView) {
+    private RcvHelper(RecyclerView recyclerView, NetViewHolder netViewHolder, boolean loadMore, boolean autoLoadMore, boolean smartLoadMore) {
+        mRecyclerView = recyclerView;
         mLoadMore = loadMore;
         mAutoLoadMore = autoLoadMore;
-        mSmartLoadMoreView = smartLoadMoreView;
-        mRecyclerView = recyclerView;
-        mAdapter = new MultiTypeAdapter();
-        mAdapter.setItems(mItems = new Items());
-        mAdapter.register(NetStatus.class).to(
-                new NetViewHolder(R.layout.fd_view_normal),
-                new NetViewHolder(R.layout.fd_view_loading),
-                new NetViewHolder(R.layout.fd_view_error),
-                new NetViewHolder(R.layout.fd_view_moreover),
-                new NetViewHolder(R.layout.fd_view_empty)
-        ).withLinker(new Linker<NetStatus>() {
-            @Override
-            public int index(int position, @NonNull NetStatus netStatus) {
-                switch (netStatus.getStatus()) {
-                    case LOADING:
-                        return 1;
-                    case ERROR:
-                        return 2;
-                    case MOREOVER:
-                        return 3;
-                    case EMPTY:
-                        return 4;
-                    default:
-                        return 0;
-                }
-            }
-        });
+        mSmartLoadMore = smartLoadMore;
+
         if (mRecyclerView.getLayoutManager() == null) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
         }
-        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.setAdapter(mAdapter = new MultiTypeAdapter());
+        mAdapter.setItems(mItems = new Items());
+
+        if (netViewHolder != null) {
+            mNetViewHolder = netViewHolder;
+        }
+        mAdapter.register(NetStatus.class, mNetViewHolder);
+
         resetItemView();
+
         if (mLoadMore) initEvent();
     }
 
     public static class Builder {
 
-        private RecyclerView  mRecyclerView;
+        private RecyclerView mRecyclerView;
 
-        private boolean mLoadMore          = true;
-        private boolean mSmartLoadMoreView = true;
-        private boolean mAutoLoadMore      = true;
+        private boolean mLoadMore      = true;
+        private boolean mAutoLoadMore  = true;
+        private boolean mSmartLoadMore = true;
+
+        private NetViewHolder mNetViewHolder;
 
         public Builder(RecyclerView recyclerView) {
             mRecyclerView = recyclerView;
@@ -92,8 +76,8 @@ public class RcvHelper {
             return this;
         }
 
-        public Builder setmSmartLoadMoreView(boolean mSmartLoadMoreView) {
-            this.mSmartLoadMoreView = mSmartLoadMoreView;
+        public Builder setSmartLoadMore(boolean smartLoadMore) {
+            this.mSmartLoadMore = smartLoadMore;
             return this;
         }
 
@@ -102,8 +86,13 @@ public class RcvHelper {
             return this;
         }
 
+        public Builder setNetViewHolder(NetViewHolder holder) {
+            this.mNetViewHolder = holder;
+            return this;
+        }
+
         public RcvHelper create() {
-            return new RcvHelper(mRecyclerView, mLoadMore, mAutoLoadMore, mSmartLoadMoreView);
+            return new RcvHelper(mRecyclerView, mNetViewHolder, mLoadMore, mAutoLoadMore, mSmartLoadMore);
         }
     }
 
@@ -126,7 +115,7 @@ public class RcvHelper {
             ((NetStatus) mItems.get(0)).setStatus(Status.EMPTY);
             mAdapter.notifyDataSetChanged();
 
-        } else if (mItems.size() > 1) {
+        } else {
             initLoadMoreView(hasLoadMore ? Status.NORMAL : Status.MOREOVER);
         }
     }
@@ -137,13 +126,14 @@ public class RcvHelper {
             ((NetStatus) item).setStatus(status);
             set(mItems.size() - 1, item);
         } else {
-            add(new NetStatus(status));
+            mItems.add(new NetStatus(status));
+            mAdapter.notifyDataSetChanged();
         }
     }
 
     public void initLoadMoreView(final Status status) {
         if (!mLoadMore) return;
-        if (mSmartLoadMoreView) {
+        if (mSmartLoadMore) {
             mRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -252,10 +242,10 @@ public class RcvHelper {
         void onScrollBottom();
     }
 
-    INetViewGroup.OnNetListener netListener;
+    OnNetListener netListener;
 
-    public void setOnNetListener(INetViewGroup.OnNetListener listener) {
-        netListener = listener;
+    public void setOnNetListener(OnNetListener listener) {
+        mNetViewHolder.setOnNetListener(netListener = listener);
     }
 
     private OnScrollListener mScrollListener;
