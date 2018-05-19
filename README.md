@@ -2,8 +2,7 @@
 
 
 
-[![Release](https://jitpack.io/v/User/Repo.svg)]
-(https://jitpack.io/#User/Repo)
+[！[]（https://jitpack.io/v/jitpack/maven-simple.svg）（https://jitpack.io/#jitpack/maven-simple）
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/xoptimal/RcvHelper/blob/master/LICENSE)
 
 
