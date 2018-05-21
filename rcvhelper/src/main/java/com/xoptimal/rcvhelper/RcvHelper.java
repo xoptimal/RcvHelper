@@ -111,10 +111,11 @@ public class RcvHelper {
             mItems.add(new NetStatus(Status.EMPTY));
             mAdapter.notifyItemInserted(0);
 
-        } else if (mItems.size() == 1 && mItems.get(0) instanceof NetStatus && ((NetStatus) mItems.get(0)).getStatus() != Status.EMPTY) {
-            ((NetStatus) mItems.get(0)).setStatus(Status.EMPTY);
-            mAdapter.notifyDataSetChanged();
-
+        } else if (mItems.size() == 1 && mItems.get(0) instanceof NetStatus) {
+            if (((NetStatus) mItems.get(0)).getStatus() != Status.EMPTY) {
+                ((NetStatus) mItems.get(0)).setStatus(Status.EMPTY);
+                mAdapter.notifyDataSetChanged();
+            }
         } else {
             initLoadMoreView(hasLoadMore ? Status.NORMAL : Status.MOREOVER);
         }
@@ -201,8 +202,8 @@ public class RcvHelper {
         if (index >= 0) {
             mItems.remove(index);
             mAdapter.notifyItemRemoved(index);
+            resetItemView();
         }
-        resetItemView();
     }
 
     public void set(int position, Object item) {
